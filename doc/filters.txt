@@ -1,0 +1,100 @@
+*filters.txt*		Automatic document conversion using filters
+
+==============================================================================
+CONTENTS					  *filters* *filters-contents*
+  1. Introduction..............................................|filters-intro|
+  2. Configuration............................................|filters-config|
+  3. Functions.............................................|filters-functions|
+
+==============================================================================
+*INTRODUCTION*						       *filters-intro*
+
+Filter is any program which is able to read data from stdin and to write it to
+stdout.
+
+This plugin makes use of arbitrary filter programs to process file formats
+different from plain text.
+
+The automatic conversion is based on file extension(s). All you have to do is
+(1) Register your filter tools using |FiltersPlugin.set_tool()|, and (2)
+Register your file extensions using |FiltersPlugin.set_extension()|. The
+plugin does the rest for you: any nesting level of read and write operations
+is now supported.
+
+NOTE: you are adviced to switch off the standard |gzip-autocmd| by adding >
+    :let g:loaded_gzip = 1
+to your |vimrc|.
+
+NOTE: the plugin loads files while |'binary'| is on, so it may break
+|'fileformat'| and |'fileencoding'| auto guess.
+
+==============================================================================
+CONFIGURATION						      *filters-config*
+
+						       *g:filters_no_defaults*
+
+The plugin predefines quite a few tools and extensions for you. You can
+disable this by setting this variable to 1.
+
+							     *g:FiltersPlugin*
+
+This |Dictionary| contains all the registration information for the plugin.
+Normally you don't use it directly, but call a |Dictionary-function|.
+
+==============================================================================
+*FUNCTIONS*						   *filters-functions*
+
+FiltersPlugin.has_tool({tool})			    *FiltersPlugin.has_tool()*
+
+  Checks if {tool} with this name was already registered.
+
+FiltersPlugin.set_tool({tool} [, {opts}])	    *FiltersPlugin.set_tool()*
+
+  Registers {tool} for later use. {opts} is a |Dictionary|. All of the
+  following fields are optional:
+
+  field     meaning ~
+  path      The full path to the tool.
+            Defaults to |v:null|, so it'll be found by |exepath()|.
+  do        Extra options while reading in. Default is "-d".
+  undo      Extra options while writing out. Default is "".
+            Set to |v:null| if back conversion is not possible.
+  ft        |'filetype'| value to set after conversion. Default is |v:null|,
+            so the plugin tries to process remaining extensions and to
+            apply automatic filetype detection.
+  checked   This is an internal flag. It defaults to zero which means
+            that the "path" field shall be checked before use.
+
+  An example for "pandoc" to convert various formats to plain text: >
+    :call g:FiltersPlugin.set_tool('pandoc', {'do': '-f$1 -tplain --eol=lf',
+        \ 'undo': v:null, 'ft': 'text'})
+<
+  Here "$1" will be substituted by the current file extension.
+
+FiltersPlugin.has_extension({ext})	       *FiltersPlugin.has_extension()*
+
+  Checks if file extension {ext} was already registered.
+
+FiltersPlugin.set_extension({ext}, {tool})     *FiltersPlugin.set_extension()*
+
+  Sets one or several {tool} to process {ext}. {tool} can be a String or a
+  List.
+
+FiltersPlugin.default_tools()		       *FiltersPlugin.default_tools()*
+
+  Registers a set of predefined filter tools.
+
+FiltersPlugin.default_extensions()	  *FiltersPlugin.default_extensions()*
+
+  Registers a set of predefined file extensions.
+
+FiltersPlugin.ft_ignore_pat([{pat}])	       *FiltersPlugin.ft_ignore_pat()*
+
+  Builds a |pattern| of file extensions which content shall not be inspected
+  |filetype-ignore|. {pat} defaults to g:ft_ignore_pat internal variable. An
+  example usage (NOTE: it's already default |g:filters_no_defaults|): >
+
+    :let g:ft_ignore_pat = g:FiltersPlugin.ft_ignore_pat()
+
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:
