@@ -1,6 +1,6 @@
 " Vim plugin to run various text filters
 " Maintainer:   matveyt
-" Last Change:  2020 Jul 29
+" Last Change:  2020 Jul 30
 " License:      VIM License
 " URL:          https://github.com/matveyt/vim-filters
 
@@ -72,6 +72,10 @@ function! filters#run_tool(tool, ext, dir) abort
 
     silent! execute "%!" fnameescape(l:tinfo.path) l:opts
     if v:shell_error
+        if v:shell_error >= 126
+            " disable tool
+            let l:tinfo.checked = -1
+        endif
         return v:shell_error
     endif
 
