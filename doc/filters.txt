@@ -1,4 +1,4 @@
-*filters.txt*		Automatic document conversion using filters
+*filters.txt*	Automatic document conversion using filters
 
 ==============================================================================
 CONTENTS					  *filters* *filters-contents*
@@ -21,11 +21,11 @@ Register your file extensions using |FiltersPlugin.set_extension()|. The
 plugin does the rest for you: any nesting level of read and write operations
 is now supported.
 
-NOTE: you are adviced to switch off the standard |gzip-autocmd| by adding >
+Note you are adviced to switch off the standard |gzip-autocmd| by adding >
     :let g:loaded_gzip = 1
 to your |vimrc|.
 
-NOTE: the plugin loads files while |'binary'| is on, so it may break
+Note the plugin loads files while |'binary'| is on, so it may break
 |'fileformat'| and |'fileencoding'| auto guess.
 
 ==============================================================================
