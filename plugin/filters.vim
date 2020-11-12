@@ -1,10 +1,10 @@
 " Vim plugin to run various text filters
 " Maintainer:   matveyt
-" Last Change:  2020 Jul 30
+" Last Change:  2020 Nov 12
 " License:      VIM License
 " URL:          https://github.com/matveyt/vim-filters
 
-if exists('g:loaded_filters')
+if exists('g:loaded_filters') || !exists('g:did_load_filetypes')
     finish
 endif
 let g:loaded_filters = 1
@@ -81,11 +81,9 @@ function! FiltersPlugin.default_extensions() abort
 endfunction
 
 function! FiltersPlugin.ft_ignore_pat(...) abort
-    let l:ignore_pat = get(a:, 1, g:ft_ignore_pat)
-    let l:ignore = split(matchstr(l:ignore_pat, '\\\.\\(\zs.*\ze\\)\$'), '\\|')
-    call extend(l:ignore, keys(self.extension))
-    call sort(l:ignore)
-    call uniq(l:ignore)
+    let l:ignore = split(matchstr(a:0 ? a:1 : g:ft_ignore_pat,
+        \ '\\\.\\(\zs.*\ze\\)\$'), '\\|')
+    call uniq(sort(extend(l:ignore, keys(self.extension))))
     return '\.\('..join(l:ignore, '\|')..'\)$'
 endfunction
 
