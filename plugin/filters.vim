@@ -1,6 +1,6 @@
 " Vim plugin to run various text filters
 " Maintainer:   matveyt
-" Last Change:  2020 Nov 12
+" Last Change:  2021 Jan 11
 " License:      VIM License
 " URL:          https://github.com/matveyt/vim-filters
 
@@ -21,21 +21,25 @@ const s:default_tool = {
     \ 'checked': 0
 \ }
 
-function! FiltersPlugin.has_tool(tool) abort
-    return has_key(self.tool, a:tool)
+function! FiltersPlugin.acceptable(name) abort
+    return has_key(self.extension, fnamemodify(a:name, ':e'))
 endfunction
 
-function! FiltersPlugin.set_tool(tool, ...) abort
-    let self.tool[a:tool] = extend(copy(s:default_tool), get(a:, 1, {}))
+function! FiltersPlugin.has_tool(tool) abort
+    return has_key(self.tool, a:tool)
 endfunction
 
 function! FiltersPlugin.has_extension(ext) abort
     return has_key(self.extension, a:ext)
 endfunction
 
+function! FiltersPlugin.set_tool(tool, ...) abort
+    let self.tool[a:tool] = extend(copy(s:default_tool), get(a:, 1, {}))
+endfunction
+
 function! FiltersPlugin.set_extension(ext, tool) abort
     if type(a:tool) == v:t_list
-        let self.extension[a:ext] = copy(a:tool)
+        let self.extension[a:ext] = a:tool[:]
     else
         let self.extension[a:ext] = [a:tool]
     endif
@@ -87,14 +91,8 @@ function! FiltersPlugin.ft_ignore_pat(...) abort
     return '\.\('..join(l:ignore, '\|')..'\)$'
 endfunction
 
-if !get(g:, 'filters_no_defaults')
-    call g:FiltersPlugin.default_tools()
-    call g:FiltersPlugin.default_extensions()
-    let g:ft_ignore_pat = g:FiltersPlugin.ft_ignore_pat()
-endif
-
 function s:pre_read(name) abort
-    if g:FiltersPlugin.has_extension(fnamemodify(a:name, ':e'))
+    if g:FiltersPlugin.acceptable(a:name)
         call filters#init_buffer()
     endif
 endfunction
@@ -106,14 +104,13 @@ function s:post_read(name) abort
     endif
 endfunction
 
-function s:pre_write() abort
-    let l:list = get(b:, 'filters_list')
-    if !empty(l:list)
+function s:pre_write(name) abort
+    if exists('b:filters_list') && g:FiltersPlugin.acceptable(a:name)
         call filters#init_buffer()
         execute "normal! i\<C-G>u"
-        for l:item in l:list
+        for l:item in b:filters_list
             if filters#run_tool(l:item[0], l:item[1], v:false)
-                execute 'silent undo' b:filters_changenr
+                execute 'silent! undo' b:filters_changenr
                 call filters#fini_buffer()
                 throw 'filters: failed to prepare for writing'
             endif
@@ -121,9 +118,9 @@ function s:pre_write() abort
     endif
 endfunction
 
-function s:post_write() abort
+function s:post_write(name) abort
     if exists('b:filters_changenr')
-        execute 'silent undo' b:filters_changenr
+        execute 'silent! undo' b:filters_changenr
         call filters#fini_buffer()
     endif
 endfunction
@@ -131,9 +128,15 @@ endfunction
 augroup FiltersPlugin | au!
     autocmd BufReadPre * call s:pre_read(expand('<afile>'))
     autocmd BufReadPost * call s:post_read(expand('<afile>'))
-    autocmd BufWritePre * call s:pre_write()
-    autocmd BufWritePost * call s:post_write()
+    autocmd BufWritePre * call s:pre_write(expand('<afile>'))
+    autocmd BufWritePost * call s:post_write(expand('<afile>'))
 augroup end
+
+if !get(g:, 'filters_no_defaults')
+    call g:FiltersPlugin.default_tools()
+    call g:FiltersPlugin.default_extensions()
+    let g:ft_ignore_pat = g:FiltersPlugin.ft_ignore_pat()
+endif
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

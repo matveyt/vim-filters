@@ -44,6 +44,10 @@ Normally you don't use it directly, but call a |Dictionary-function|.
 ==============================================================================
 *FUNCTIONS*						   *filters-functions*
 
+FiltersPlugin.acceptable({fname})		  *FiltersPlugin.acceptable()*
+
+  Checks if file {fname} can be filtered (has known extension).
+
 FiltersPlugin.has_tool({tool})			    *FiltersPlugin.has_tool()*
 
   Checks if {tool} with this name was already registered.
@@ -62,8 +66,8 @@ FiltersPlugin.set_tool({tool} [, {opts}])	    *FiltersPlugin.set_tool()*
   ft        |'filetype'| value to set after conversion. Default is |v:null|,
             so the plugin tries to process remaining extensions and to
             apply automatic filetype detection.
-  checked   This is an internal flag. It defaults to zero which means
-            that the "path" field shall be checked before use.
+  checked   This is an internal flag. It defaults to zero, so "path" field
+            shall be checked before use.
 
   An example for "pandoc" to convert various formats to plain text: >
     :call g:FiltersPlugin.set_tool('pandoc', {'do': '-f$1 -tplain --eol=lf',
