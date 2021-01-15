@@ -1,6 +1,6 @@
 " Vim plugin to run various text filters
 " Maintainer:   matveyt
-" Last Change:  2020 Jul 30
+" Last Change:  2021 Jan 14
 " License:      VIM License
 " URL:          https://github.com/matveyt/vim-filters
 
@@ -107,6 +107,19 @@ function! filters#executable(tool) abort
         endif
     endif
     return l:tinfo.checked > 0 ? v:true : v:false
+endfunction
+
+" filters#hex({hex}, {extlist})
+" hex or bless extension list
+function! filters#hex(hex, extlist) abort
+    if a:hex
+        for l:ext in a:extlist
+            let g:FiltersPlugin.extension[l:ext] = ['xxd']
+        endfor
+    else
+        call filter(g:FiltersPlugin.extension,
+            \ {k, v -> (index(a:extlist, k) < 0) || v != ['xxd']})
+    endif
 endfunction
 
 let &cpo = s:save_cpo

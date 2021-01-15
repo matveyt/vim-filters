@@ -1,6 +1,6 @@
 " Vim plugin to run various text filters
 " Maintainer:   matveyt
-" Last Change:  2021 Jan 11
+" Last Change:  2021 Jan 14
 " License:      VIM License
 " URL:          https://github.com/matveyt/vim-filters
 
@@ -137,6 +137,7 @@ if !get(g:, 'filters_no_defaults')
     call g:FiltersPlugin.default_extensions()
     let g:ft_ignore_pat = g:FiltersPlugin.ft_ignore_pat()
 endif
+command! -bar -bang -nargs=+ Hex call filters#hex(<bang>1, [<f-args>])
 
 let &cpo = s:save_cpo
 unlet s:save_cpo

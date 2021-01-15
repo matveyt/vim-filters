@@ -5,21 +5,21 @@ CONTENTS					  *filters* *filters-contents*
   1. Introduction..............................................|filters-intro|
   2. Configuration............................................|filters-config|
   3. Functions.............................................|filters-functions|
+  4. Commands...............................................|filters-commands|
 
 ==============================================================================
 *INTRODUCTION*						       *filters-intro*
 
-Filter is any program which is able to read data from stdin and to write it to
-stdout.
+Filter is a program able to read data from stdin and to write it to stdout.
 
-This plugin makes use of arbitrary filter programs to process file formats
-different from plain text.
+This plugin makes use of arbitrary filters to process file formats different
+from plain text.
 
 The automatic conversion is based on file extension(s). All you have to do is
 (1) Register your filter tools using |FiltersPlugin.set_tool()|, and (2)
 Register your file extensions using |FiltersPlugin.set_extension()|. The
 plugin does the rest for you: any nesting level of read and write operations
-is now supported.
+is supported.
 
 Note you are adviced to switch off the standard |gzip-autocmd| by adding >
     :let g:loaded_gzip = 1
@@ -99,6 +99,13 @@ FiltersPlugin.ft_ignore_pat([{pat}])	       *FiltersPlugin.ft_ignore_pat()*
   example usage (NOTE: it's already default |g:filters_no_defaults|): >
 
     :let g:ft_ignore_pat = g:FiltersPlugin.ft_ignore_pat()
+
+==============================================================================
+*COMMANDS*						    *filters-commands*
+
+:Hex[!] {ext} ...						        *:Hex*
+
+Hex or Bless extension list. Depends on "xxd" tool.
 
 ==============================================================================
  vim:tw=78:ts=8:ft=help:norl:
